@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sevdiğin sanatçının konserine gerçek bilet, uçuş ve otel fiyatlarıyla git." />
+  <title>ConcertJet — Gerçek Fiyat, Gerçek Bilet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/additions.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon"><i class="fa-solid fa-jet-fighter-up"></i></span>
+        <span class="logo-text">Concert<span class="accent">Jet</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#how-it-works">Nasıl Çalışır</a>
+        <a href="#" id="nav-fav-btn"><i class="fa-solid fa-heart"></i> Favoriler <span class="fav-badge" id="fav-badge">0</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Gerçek Bilet · Gerçek Uçuş · Canlı Fiyat</div>
+      <h1 class="hero-title">Favori Sanatçına<br /><span class="gradient-text">En Ucuz Yolculuk</span></h1>
+      <p class="hero-sub">Ticketmaster'dan gerçek bilet linkleri, Skyscanner'dan zamanında yetişen uçuşlar, Booking.com'dan 3 kategorili otel önerileri.</p>
+
+      <div class="search-card" id="search-card">
+        <div class="search-row">
+          <div class="input-group" id="artist-group">
+            <label><i class="fa-solid fa-music"></i> Sanatçı</label>
+            <input type="text" id="artist-input" placeholder="Taylor Swift, Coldplay..." autocomplete="off" />
+            <div class="autocomplete-dropdown" id="artist-dropdown"></div>
+          </div>
+          <div class="input-group">
+            <label><i class="fa-solid fa-location-dot"></i> Kalkış Şehri</label>
+            <input type="text" id="city-input" placeholder="Istanbul, Ankara..." autocomplete="off" />
+            <div class="autocomplete-dropdown" id="city-dropdown"></div>
+          </div>
+          <div class="input-group">
+            <label><i class="fa-solid fa-coins"></i> Para Birimi</label>
+            <select id="currency-select">
+              <option value="TRY">🇹🇷 TRY — Türk Lirası</option>
+              <option value="USD">🇺🇸 USD — Dolar</option>
+              <option value="EUR">🇪🇺 EUR — Euro</option>
+              <option value="GBP">🇬🇧 GBP — Sterlin</option>
+            </select>
+          </div>
+        </div>
+        <button class="search-btn" id="search-btn">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Konser & Uçuş Ara</span>
+          <div class="btn-shimmer"></div>
+        </button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" data-target="12400">0</span><span class="stat-label">Konser Etkinliği</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" data-target="340">0</span><span class="stat-label">Şehir</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" data-target="98">0</span><span class="stat-label">% Memnuniyet</span></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how-it-works">
+    <h2 class="section-title">Nasıl Çalışır?</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon"><i class="fa-solid fa-ticket"></i></div>
+        <h3>Gerçek Bilet Bul</h3>
+        <p>Ticketmaster API'dan gerçek etkinlik ID'si ve resmi bilet satış linki getirilir.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon"><i class="fa-solid fa-plane-arrival"></i></div>
+        <h3>Zamanında Yetişen Uçuş</h3>
+        <p>Yalnızca konser saatinden önce varışa izin veren uçuşlar listelenir (−2 gün tarama).</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon"><i class="fa-solid fa-hotel"></i></div>
+        <h3>3 Kategorili Otel</h3>
+        <p>Bütçe · Fiyat/Performans · Lüks — Booking.com canlı fiyatlarıyla.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon"><i class="fa-solid fa-suitcase-rolling"></i></div>
+        <h3>Paket Özeti</h3>
+        <p>Bilet + Uçuş + Otel tek sayfada, toplam maliyet ve doğrudan rezervasyon linkleriyle.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS SECTION -->
+  <section class="results-section" id="results-section" style="display:none;">
+    <div class="results-header">
+      <div>
+        <h2 class="section-title" id="results-title">Sonuçlar</h2>
+        <p class="results-sub" id="results-sub"></p>
+      </div>
+      <div class="results-controls">
+        <button class="ctrl-btn active" id="tab-concerts" onclick="switchTab('concerts')"><i class="fa-solid fa-ticket"></i> Konserler</button>
+        <button class="ctrl-btn" id="tab-flights" onclick="switchTab('flights')"><i class="fa-solid fa-plane"></i> Uçuşlar</button>
+        <button class="ctrl-btn" id="tab-hotels" onclick="switchTab('hotels')"><i class="fa-solid fa-hotel"></i> Oteller</button>
+        <button class="ctrl-btn" id="tab-package" onclick="switchTab('package')"><i class="fa-solid fa-suitcase-rolling"></i> Seyahat Paketi</button>
+      </div>
+    </div>
+
+    <!-- CONCERTS TAB -->
+    <div class="tab-content" id="concerts-tab">
+      <div class="filter-bar">
+        <input type="text" id="concert-filter" placeholder="Şehir veya mekan filtrele..." class="filter-input" />
+        <select id="concert-sort" class="filter-select">
+          <option value="date">Tarihe Göre</option>
+          <option value="price">Fiyata Göre</option>
+        </select>
+        <div class="data-source-badge"><i class="fa-solid fa-circle-check"></i> Ticketmaster API</div>
+      </div>
+      <div class="cards-grid" id="concerts-grid"></div>
+    </div>
+
+    <!-- FLIGHTS TAB -->
+    <div class="tab-content" id="flights-tab" style="display:none;">
+      <div class="filter-bar">
+        <div class="time-filter-info" id="time-filter-info"></div>
+        <select id="flight-sort" class="filter-select">
+          <option value="price">En Ucuz</option>
+          <option value="duration">En Kısa</option>
+          <option value="stops">Aktarmasız Önce</option>
+        </select>
+        <div class="data-source-badge"><i class="fa-brands fa-skyscanner" style="color:#00b8d9"></i> Skyscanner Linkleri</div>
+      </div>
+      <div class="flight-time-alert" id="flight-time-alert" style="display:none;"></div>
+      <div class="price-calendar" id="price-calendar"></div>
+      <div class="cards-grid" id="flights-grid"></div>
+    </div>
+
+    <!-- HOTELS TAB -->
+    <div class="tab-content" id="hotels-tab" style="display:none;">
+      <div class="filter-bar">
+        <div class="data-source-badge"><i class="fa-solid fa-b" style="color:#003580"></i> Booking.com Kategorileri</div>
+      </div>
+      <div class="hotel-categories" id="hotel-categories"></div>
+    </div>
+
+    <!-- PACKAGE TAB -->
+    <div class="tab-content" id="package-tab" style="display:none;">
+      <div id="package-content"></div>
+    </div>
+  </section>
+
+  <!-- FAVORITES MODAL -->
+  <div class="modal-overlay" id="fav-modal" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-heart"></i> Favorilerim</h3>
+        <button class="modal-close" onclick="closeFavModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="fav-list"></div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loading-overlay" style="display:none;">
+    <div class="loading-card">
+      <div class="loading-logo"><i class="fa-solid fa-jet-fighter-up"></i></div>
+      <div class="loading-steps" id="loading-steps">
+        <div class="load-step active" id="ls-1"><i class="fa-solid fa-circle-notch fa-spin"></i> Ticketmaster'dan konserler çekiliyor...</div>
+        <div class="load-step" id="ls-2"><i class="fa-solid fa-circle-notch"></i> Skyscanner uçuşları taranıyor...</div>
+        <div class="load-step" id="ls-3"><i class="fa-solid fa-circle-notch"></i> Booking.com otelleri kategorileniyor...</div>
+        <div class="load-step" id="ls-4"><i class="fa-solid fa-circle-notch"></i> Döviz kurları güncelleniyor...</div>
+      </div>
+      <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+      <p class="loading-note">Gerçek kaynaklardan veri çekiliyor...</p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/currency.js"></script>
+  <script src="js/concerts.js"></script>
+  <script src="js/flights.js"></script>
+  <script src="js/hotels.js"></script>
+  <script src="js/package.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

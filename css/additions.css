@@ -1,0 +1,84 @@
+/* NEW STYLES — appended to existing */
+.data-source-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:600;padding:.35rem .8rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2)}
+.loading-note{font-size:.75rem;color:var(--text2);margin-top:.8rem}
+.time-filter-info{font-size:.8rem;color:var(--accent3);display:flex;align-items:center;gap:.4rem}
+.flight-time-alert{background:rgba(255,215,64,.1);border:1px solid rgba(255,215,64,.3);border-radius:var(--radius-sm);padding:.8rem 1rem;font-size:.85rem;color:var(--yellow);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+
+/* HOTEL CATEGORIES */
+.hotel-categories{display:flex;flex-direction:column;gap:2rem}
+.hotel-category-section h3{font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:var(--radius-sm);width:fit-content}
+.cat-budget h3{background:rgba(0,230,118,.1);color:var(--green)}
+.cat-mid h3{background:rgba(124,92,252,.1);color:var(--accent)}
+.cat-luxury h3{background:rgba(255,215,64,.1);color:var(--yellow)}
+.hotel-category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem}
+.hotel-card-v2{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;transition:transform .3s,border-color .3s}
+.hotel-card-v2:hover{transform:translateY(-3px);border-color:rgba(124,92,252,.3)}
+.hotel-card-v2.budget{border-left:3px solid var(--green)}
+.hotel-card-v2.mid{border-left:3px solid var(--accent)}
+.hotel-card-v2.luxury{border-left:3px solid var(--yellow)}
+.hotel-name-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
+.hotel-name-v2{font-size:.95rem;font-weight:700}
+.hotel-stars-v2{color:var(--yellow);font-size:.8rem;flex-shrink:0}
+.hotel-meta-row{display:flex;justify-content:space-between;align-items:center;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.hotel-price-v2{font-size:1.1rem;font-weight:800;color:var(--green)}
+.hotel-price-label{font-size:.7rem;color:var(--text2)}
+.hotel-updated{font-size:.68rem;color:var(--text2);margin-top:.2rem}
+.book-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:var(--radius-sm);font-size:.8rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.book-btn-booking{background:#003580;color:#fff}
+.book-btn-booking:hover{background:#00256a}
+.book-btn-skyscanner{background:#00b8d9;color:#fff}
+.book-btn-skyscanner:hover{background:#008fa8}
+.book-btn-ticket{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.book-btn-ticket:hover{opacity:.9}
+
+/* PACKAGE PAGE */
+.package-page{display:flex;flex-direction:column;gap:1.5rem}
+.package-hero{background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(224,64,251,.1));border:1px solid rgba(124,92,252,.3);border-radius:var(--radius);padding:2rem}
+.package-hero-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.package-concert-title{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800}
+.package-concert-sub{color:var(--text2);font-size:.9rem;margin-top:.3rem}
+.package-total{text-align:right}
+.package-total-label{font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.package-total-price{font-family:'Outfit',sans-serif;font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,var(--green),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.package-actions{display:flex;gap:.8rem;flex-wrap:wrap}
+.package-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem}
+.pkg-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem}
+.pkg-card-header{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;font-weight:700;font-size:.95rem}
+.pkg-card-header i{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.9rem}
+.icon-ticket{background:rgba(124,92,252,.2);color:var(--accent)}
+.icon-flight{background:rgba(0,184,217,.2);color:#00b8d9}
+.icon-hotel{background:rgba(255,215,64,.2);color:var(--yellow)}
+.pkg-detail-row{display:flex;justify-content:space-between;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border)}
+.pkg-detail-row:last-child{border:none}
+.pkg-detail-label{color:var(--text2)}
+.pkg-detail-value{font-weight:600}
+.pkg-price-big{font-size:1.3rem;font-weight:800;color:var(--green);margin:.8rem 0 .5rem}
+.pkg-updated{font-size:.68rem;color:var(--text2);display:flex;align-items:center;gap:.3rem}
+.comparison-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+.comparison-wrap h3{font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+table.comp-table{width:100%;border-collapse:collapse;font-size:.82rem}
+table.comp-table th{text-align:left;padding:.6rem 1rem;background:var(--bg3);color:var(--text2);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+table.comp-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border)}
+table.comp-table tr:hover td{background:rgba(124,92,252,.04)}
+table.comp-table .best-row td{background:rgba(0,230,118,.05)}
+.tag{display:inline-flex;align-items:center;gap:.2rem;padding:.15rem .5rem;border-radius:999px;font-size:.7rem;font-weight:600}
+.tag-green{background:rgba(0,230,118,.15);color:var(--green)}
+.tag-blue{background:rgba(0,229,255,.15);color:var(--accent3)}
+.tag-purple{background:rgba(124,92,252,.15);color:var(--accent)}
+.tag-yellow{background:rgba(255,215,64,.15);color:var(--yellow)}
+
+/* FLIGHT CARD updated */
+.flight-arrives-badge{font-size:.68rem;padding:.15rem .5rem;border-radius:999px;background:rgba(0,230,118,.15);color:var(--green);font-weight:600}
+.flight-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border)}
+.flight-updated{font-size:.68rem;color:var(--text2)}
+
+/* CONCERT CARD real-data */
+.concert-ticket-link{display:flex;align-items:center;gap:.4rem;width:100%;margin-top:.6rem;padding:.55rem 1rem;background:linear-gradient(135deg,rgba(124,92,252,.15),rgba(224,64,251,.1));border:1px solid rgba(124,92,252,.3);border-radius:var(--radius-sm);color:var(--accent);font-size:.82rem;font-weight:600;text-decoration:none;justify-content:center;transition:all .2s}
+.concert-ticket-link:hover{background:var(--accent);color:#fff}
+.concert-event-id{font-size:.65rem;color:var(--text2);margin-top:.3rem;font-family:monospace}
+
+@media(max-width:900px){
+  .package-grid{grid-template-columns:1fr}
+  .package-hero-top{flex-direction:column}
+  .package-total{text-align:left}
+}
