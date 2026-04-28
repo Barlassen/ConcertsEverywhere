@@ -1,9 +1,13 @@
 {
   "name": "concertseverywhere",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node --check server.js && node --check js/app.js && node --check js/concerts.js && node --check js/currency.js && node --check js/flights.js && node --check js/hotels.js && node --check js/package.js && node --check js/ui.js",
+    "test:api": "node test_api.js",
+    "test:prices": "node test_prices.js"
   },
   "keywords": [],
   "author": "",
