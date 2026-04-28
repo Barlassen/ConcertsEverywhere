@@ -39,6 +39,87 @@ async function getAmadeusToken() {
   }
 }
 
+function getSegmentTime(slice, boundary) {
+  const segments = slice?.segments || [];
+  if (!segments.length) return null;
+  const segment = boundary === 'arrival' ? segments[segments.length - 1] : segments[0];
+  return boundary === 'arrival' ? segment.arriving_at : segment.departing_at;
+}
+
+function getCarrierName(slice) {
+  const segment = slice?.segments?.[0];
+  return segment?.marketing_carrier?.name
+    || segment?.operating_carrier?.name
+    || segment?.marketing_carrier?.iata_code
+    || segment?.operating_carrier?.iata_code
+    || 'Duffel';
+}
+
+function normalizeDuffelOffer(offer) {
+  const outbound = offer.slices?.[0];
+  const inbound = offer.slices?.[1];
+  const outboundDeparture = getSegmentTime(outbound, 'departure');
+  const outboundArrival = getSegmentTime(outbound, 'arrival');
+  const returnDeparture = getSegmentTime(inbound, 'departure');
+  const returnArrival = getSegmentTime(inbound, 'arrival');
+
+  return {
+    id: offer.id,
+    airline: getCarrierName(outbound),
+    airlineCode: outbound?.segments?.[0]?.marketing_carrier?.iata_code
+      || outbound?.segments?.[0]?.operating_carrier?.iata_code
+      || '',
+    totalAmount: offer.total_amount,
+    totalCurrency: offer.total_currency,
+    outbound: {
+      departureAt: outboundDeparture,
+      arrivalAt: outboundArrival,
+      duration: outbound?.duration,
+      stops: Math.max((outbound?.segments?.length || 1) - 1, 0)
+    },
+    return: {
+      departureAt: returnDeparture,
+      arrivalAt: returnArrival,
+      duration: inbound?.duration,
+      stops: Math.max((inbound?.segments?.length || 1) - 1, 0)
+    }
+  };
+}
+
+async function searchDuffelFlights({ originCode, destCode, date, returnDate }) {
+  const token = process.env.DUFFEL_ACCESS_TOKEN;
+  if (!token || token === 'YOUR_DUFFEL_TEST_OR_LIVE_ACCESS_TOKEN_HERE') {
+    return null;
+  }
+
+  const response = await axios.post(
+    'https://api.duffel.com/air/offer_requests',
+    {
+      data: {
+        slices: [
+          { origin: originCode, destination: destCode, departure_date: date },
+          { origin: destCode, destination: originCode, departure_date: returnDate }
+        ],
+        passengers: [{ type: 'adult' }],
+        cabin_class: 'economy'
+      }
+    },
+    {
+      params: { return_offers: true, supplier_timeout: 10000 },
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Duffel-Version': 'v2',
+        Authorization: `Bearer ${token}`
+      },
+      timeout: 20000
+    }
+  );
+
+  const offers = response.data?.data?.offers || [];
+  return offers.map(normalizeDuffelOffer);
+}
+
 // --- API Endpoints ---
 
 // 1. Exchange Rates
@@ -116,6 +197,11 @@ app.get('/api/seatgeek', async (req, res) => {
 app.get('/api/flights', async (req, res) => {
   try {
     const { originCode, destCode, date, returnDate } = req.query;
+    const duffelFlights = await searchDuffelFlights({ originCode, destCode, date, returnDate });
+    if (duffelFlights) {
+      return res.json({ provider: 'duffel', data: duffelFlights });
+    }
+
     const clientId = process.env.AMADEUS_CLIENT_ID;
 
     if (!clientId || clientId === 'YOUR_AMADEUS_CLIENT_ID_HERE') {

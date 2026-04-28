@@ -26,6 +26,60 @@ const FlightService = (() => {
     return arrDecimal <= (concertHour - 4);
   }
 
+  function formatStopCount(stops) {
+    return stops > 0 ? `${stops} Aktarma` : 'Aktarmasız';
+  }
+
+  function mapDuffelFlights(data, originCity, destConcert, originData, concertHour) {
+    const now = new Date();
+    return data.data.map((offer, i) => {
+      const priceOriginal = parseFloat(offer.totalAmount);
+      const currencyCode = offer.totalCurrency || 'EUR';
+      const priceUSD = CurrencyService.convert(priceOriginal, currencyCode, 'USD') || priceOriginal;
+      const depTime = new Date(offer.outbound.departureAt);
+      const arrTime = new Date(offer.outbound.arrivalAt);
+      const retDepTime = new Date(offer.return.departureAt);
+      const retArrTime = new Date(offer.return.arrivalAt);
+
+      const flight = {
+        id: offer.id || `DUFFEL-${Date.now()}-${i}`,
+        airline: offer.airline || 'Duffel',
+        airlineCode: offer.airlineCode || '',
+        airlineLogo: '✈️',
+        originCode: originData.code,
+        originCity,
+        destCode: destConcert.iata || 'LHR',
+        destCity: destConcert.city,
+        priceUSD: Math.round(priceUSD),
+        priceTRY: Math.round(priceUSD * 32.5),
+        daysBeforeConcert: 0,
+        isDomestic: destConcert.domestic,
+        outbound: {
+          date: depTime,
+          dateStr: depTime.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
+          depTime: `${depTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+          arrTime: `${arrTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+          durationStr: offer.outbound.duration || '',
+          stopsStr: formatStopCount(offer.outbound.stops || 0)
+        },
+        return: {
+          date: retDepTime,
+          dateStr: retDepTime.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
+          depTime: `${retDepTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+          arrTime: `${retArrTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+          durationStr: offer.return.duration || '',
+          stopsStr: formatStopCount(offer.return.stops || 0)
+        },
+        bookingUrl: skyscannerRoundTripUrl(originData.code, destConcert.iata || 'LHR', depTime, retDepTime),
+        source: 'Duffel Test',
+        updatedAt: now,
+        updatedStr: now.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
+      };
+      flight.arrivesInTime = arrivesInTime(flight, concertHour || 20);
+      return flight;
+    });
+  }
+
   async function fetchFlights(originCity, destConcert, concertDate, concertHour) {
     try {
       const originData = POPULAR_CITIES.find(c => c.name.toLowerCase() === originCity.toLowerCase()) || { code: 'IST' };
@@ -40,6 +94,14 @@ const FlightService = (() => {
       if (!response.ok || !data.data) {
         console.warn(data.error || 'Flight data is unavailable');
         return [];
+      }
+
+      if (data.provider === 'duffel') {
+        const results = mapDuffelFlights(data, originCity, destConcert, originData, concertHour);
+        results.sort((a, b) => a.priceUSD - b.priceUSD);
+        const validFlights = results.filter(f => f.arrivesInTime);
+        if (validFlights.length > 0) validFlights[0].isBestDeal = true;
+        return results;
       }
 
       const now = new Date();
