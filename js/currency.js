@@ -6,20 +6,20 @@ const CurrencyService = (() => {
   const SYMBOLS = { TRY: '₺', USD: '$', EUR: '€', GBP: '£' };
 
   async function fetchRates(base = 'USD') {
-    if (CONFIG.DEMO_MODE) {
-      // Mock rates relative to USD
-      rates = { USD: 1, EUR: 0.92, GBP: 0.79, TRY: 32.5 };
-      baseCurrency = base;
-      return rates;
-    }
     try {
-      const r = await fetch(`${CONFIG.EXCHANGERATE_BASE}/${CONFIG.EXCHANGERATE_KEY}/latest/${base}`);
+      const r = await fetch(`/api/rates?base=${base}`);
+      if (!r.ok) throw new Error(`Rates API failed with ${r.status}`);
       const d = await r.json();
-      if (d.result === 'success') { rates = d.conversion_rates; baseCurrency = base; }
+      if (d.result === 'success') { 
+        rates = d.conversion_rates; 
+        baseCurrency = base; 
+        return rates;
+      }
     } catch (e) {
-      rates = { USD: 1, EUR: 0.92, GBP: 0.79, TRY: 32.5 };
+      console.error('Fetch rates error:', e);
+      throw e;
     }
-    return rates;
+    throw new Error('Rates API returned an invalid response');
   }
 
   function convert(amount, fromCurrency, toCurrency) {

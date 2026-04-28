@@ -1,6 +1,9 @@
 .DS_Store
 *.swp
 *.lock
+.env
+node_modules/
+out.txt
 DerivedData/
 *.xcuserstate
 *.xcuserdatad

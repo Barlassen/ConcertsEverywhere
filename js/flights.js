@@ -26,102 +26,90 @@ const FlightService = (() => {
     return arrDecimal <= (concertHour - 4);
   }
 
-  function generateMockFlights(originCity, destConcert, concertDate, concertHour) {
-    const originData = POPULAR_CITIES.find(c =>
-      c.name.toLowerCase() === originCity.toLowerCase()
-    ) || { code: 'IST', name: originCity };
+  async function fetchFlights(originCity, destConcert, concertDate, concertHour) {
+    try {
+      const originData = POPULAR_CITIES.find(c => c.name.toLowerCase() === originCity.toLowerCase()) || { code: 'IST' };
+      const depDate = new Date(concertDate);
+      const depDateStr = depDate.toISOString().split('T')[0];
+      const returnDate = new Date(depDate.getTime() + 86400000);
+      const returnDateStr = returnDate.toISOString().split('T')[0];
 
-    const originCode = originData.code;
-    const destCode = destConcert.iata || 'LHR';
-    const isDomestic = destConcert.domestic;
-    const concertDay = new Date(concertDate);
-    
-    // Dönüş: Konserden 1 gün sonra
-    const returnDay = new Date(concertDay.getTime() + 86400000);
-    const now = new Date();
-    const results = [];
+      const response = await fetch(`/api/flights?originCode=${originData.code}&destCode=${destConcert.iata || 'LHR'}&date=${depDateStr}&returnDate=${returnDateStr}`);
+      const data = await response.json();
 
-    // Gidiş: Konserden 2 gün öncesinden konser gününe kadar
-    for (let dayOffset = -2; dayOffset <= 0; dayOffset++) {
-      const depDate = new Date(concertDay.getTime() + dayOffset * 86400000);
-      depDate.setHours(0, 0, 0, 0);
-      if (depDate < now) continue;
+      if (!response.ok || !data.data) {
+        console.warn(data.error || 'Flight data is unavailable');
+        return [];
+      }
 
-      const numFlights = 3 + Math.floor(Math.random() * 3);
-      for (let f = 0; f < numFlights; f++) {
-        const airline = AIRLINES[Math.floor(Math.random() * AIRLINES.length)];
-        
-        // Gidiş detayları
-        const outDepHour = 5 + Math.floor(Math.random() * 14);
-        const outDepMin = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
-        const outDurMins = isDomestic ? 50 + Math.floor(Math.random() * 60) : 120 + Math.floor(Math.random() * 240);
-        const outTotalArr = outDepHour * 60 + outDepMin + outDurMins;
-        const outArrHour = Math.floor(outTotalArr / 60) % 24;
-        const outArrMin = outTotalArr % 60;
+      const now = new Date();
+      const roundTripOffers = data.data.filter(offer => offer.itineraries?.length >= 2);
+      const results = roundTripOffers.map((offer, i) => {
+        const outItin = offer.itineraries[0];
+        const retItin = offer.itineraries[1];
+        const outSegment = outItin.segments[0];
+        const retSegment = retItin.segments[0];
+        const priceOriginal = parseFloat(offer.price.total);
+        const currencyCode = offer.price.currency || 'EUR';
+        const priceUSD = CurrencyService.convert(priceOriginal, currencyCode, 'USD') || (priceOriginal / 0.92);
 
-        // Dönüş detayları (Ertesi gün sabah/öğle)
-        const retDepHour = 8 + Math.floor(Math.random() * 8); // 08:00 - 15:00 arası
-        const retDepMin = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
-        const retDurMins = outDurMins + (Math.floor(Math.random() * 20) - 10);
-        const retTotalArr = retDepHour * 60 + retDepMin + retDurMins;
-        const retArrHour = Math.floor(retTotalArr / 60) % 24;
-        const retArrMin = retTotalArr % 60;
-
-        const baseUSD = isDomestic ? 60 + Math.random() * 100 : 150 + Math.random() * 400; // Round-trip fiyatı
-        const priceUSD = Math.round(baseUSD);
+        const depTime = new Date(outSegment.departure.at);
+        const arrTime = new Date(outSegment.arrival.at);
+        const retDepTime = new Date(retSegment.departure.at);
+        const retArrTime = new Date(retSegment.arrival.at);
 
         const flight = {
-          id: `FL-RT-${dayOffset}${f}${Date.now()}`,
-          airline: airline.name,
-          airlineCode: airline.code,
-          airlineLogo: airline.logo,
-          originCode,
-          originCity: originData.name,
-          destCode,
+          id: offer.id || `FL-${Date.now()}-${i}`,
+          airline: outSegment.carrierCode, // Should map code to name
+          airlineCode: outSegment.carrierCode,
+          airlineLogo: '✈️',
+          originCode: originData.code,
+          originCity: originCity,
+          destCode: destConcert.iata || 'LHR',
           destCity: destConcert.city,
-          priceUSD,
+          priceUSD: Math.round(priceUSD),
           priceTRY: Math.round(priceUSD * 32.5),
-          daysBeforeConcert: Math.abs(dayOffset),
-          isDomestic,
+          daysBeforeConcert: 0,
+          isDomestic: destConcert.domestic,
           
           outbound: {
-            date: new Date(depDate),
-            dateStr: depDate.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
-            depTime: `${String(outDepHour).padStart(2,'0')}:${String(outDepMin).padStart(2,'0')}`,
-            arrTime: `${String(outArrHour).padStart(2,'0')}:${String(outArrMin).padStart(2,'0')}`,
-            durationStr: `${Math.floor(outDurMins/60)}s ${outDurMins%60}dk`,
-            stopsStr: isDomestic ? 'Aktarmasız' : (Math.random()>0.7 ? '1 Aktarma' : 'Aktarmasız')
+            date: depTime,
+            dateStr: depTime.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
+            depTime: `${depTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+            arrTime: `${arrTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+            durationStr: outItin.duration,
+            stopsStr: outItin.segments.length > 1 ? `${outItin.segments.length - 1} Aktarma` : 'Aktarmasız'
           },
           
           return: {
-            date: new Date(returnDay),
-            dateStr: returnDay.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
-            depTime: `${String(retDepHour).padStart(2,'0')}:${String(retDepMin).padStart(2,'0')}`,
-            arrTime: `${String(retArrHour).padStart(2,'0')}:${String(retArrMin).padStart(2,'0')}`,
-            durationStr: `${Math.floor(retDurMins/60)}s ${retDurMins%60}dk`,
-            stopsStr: isDomestic ? 'Aktarmasız' : (Math.random()>0.7 ? '1 Aktarma' : 'Aktarmasız')
+            date: retDepTime,
+            dateStr: retDepTime.toLocaleDateString('tr-TR', { weekday:'short', day:'numeric', month:'short' }),
+            depTime: `${retDepTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+            arrTime: `${retArrTime.toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})} (Yerel)`,
+            durationStr: retItin.duration,
+            stopsStr: retItin.segments.length > 1 ? `${retItin.segments.length - 1} Aktarma` : 'Aktarmasız'
           },
 
-          bookingUrl: skyscannerRoundTripUrl(originCode, destCode, depDate, returnDay),
-          source: 'Skyscanner Canlı',
+          bookingUrl: skyscannerRoundTripUrl(originData.code, destConcert.iata || 'LHR', depTime, retDepTime),
+          source: 'Amadeus Canlı',
           updatedAt: now,
           updatedStr: now.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' }),
         };
 
         flight.arrivesInTime = arrivesInTime(flight, concertHour || 20);
-        results.push(flight);
-      }
+        return flight;
+      });
+
+      results.sort((a, b) => a.priceUSD - b.priceUSD);
+      const validFlights = results.filter(f => f.arrivesInTime);
+      if (validFlights.length > 0) validFlights[0].isBestDeal = true;
+      
+      return results;
+
+    } catch (e) {
+      console.error('Error fetching flights:', e);
+      return [];
     }
-
-    results.sort((a, b) => a.priceUSD - b.priceUSD);
-    const validFlights = results.filter(f => f.arrivesInTime);
-    if (validFlights.length > 0) validFlights[0].isBestDeal = true;
-    return results;
-  }
-
-  async function fetchFlights(originCity, destConcert, concertDate, concertHour) {
-    await new Promise(r => setTimeout(r, 600));
-    return generateMockFlights(originCity, destConcert, concertDate, concertHour || 20);
   }
 
   // Sadece grafikte göstermek için

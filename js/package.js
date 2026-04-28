@@ -36,7 +36,7 @@ const PackageService = {
             </div>
           </div>
           <div class="package-total">
-            <div class="package-total-label">Toplam Tahmini Maliyet</div>
+            <div class="package-total-label">Toplam Tahmini Maliyet ${concert.ticketPriceUSD === 0 ? '<br><span style="font-size:0.65rem;color:var(--yellow)">(Konser Bileti Hariç)</span>' : ''}</div>
             <div class="package-total-price">${CurrencyService.format(total, currency)}</div>
             <div style="font-size:.7rem;color:var(--text2);margin-top:.3rem">Son Güncelleme: ${now}</div>
           </div>
@@ -53,7 +53,7 @@ const PackageService = {
           </div>
           <div class="pkg-detail-row"><span class="pkg-detail-label">Sanatçı</span><span class="pkg-detail-value">${concert.artist}</span></div>
           <div class="pkg-detail-row"><span class="pkg-detail-label">Tarih</span><span class="pkg-detail-value">${concert.dateStr} ${concert.timeStr}</span></div>
-          <div class="pkg-price-big">${CurrencyService.format(ticketCost, currency)}</div>
+          <div class="pkg-price-big">${concert.ticketPriceUSD > 0 ? CurrencyService.format(ticketCost, currency) : '<span style="font-size:1.2rem;color:var(--text2)">Belirtilmemiş</span>'}</div>
           <div style="margin-top:1rem;">
             ${ticketButtons}
           </div>

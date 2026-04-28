@@ -56,7 +56,11 @@ document.getElementById('concert-filter').addEventListener('input', e => {
 document.getElementById('concert-sort').addEventListener('change', e => {
   const sorted = [...window._appState.concerts].sort((a, b) => {
     if (e.target.value === 'date') return a.date - b.date;
-    if (e.target.value === 'price') return a.ticketPriceUSD - b.ticketPriceUSD;
+    if (e.target.value === 'price') {
+      const aPrice = a.ticketPriceUSD > 0 ? a.ticketPriceUSD : Number.POSITIVE_INFINITY;
+      const bPrice = b.ticketPriceUSD > 0 ? b.ticketPriceUSD : Number.POSITIVE_INFINITY;
+      return aPrice - bPrice;
+    }
     return 0;
   });
   renderConcerts(sorted, window._appState.userCurrency, window._appState.selectedConcert?.id);
@@ -92,6 +96,13 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     // Step 1: Fetch concerts (Ticketmaster logic)
     await CurrencyService.fetchRates('USD');
     const concerts = await ConcertService.fetchConcerts(artist);
+    
+    if (!concerts || concerts.length === 0) {
+      showLoading(false);
+      showToast(`"${artist}" için güncel bir konser bulunamadı. (Turnesi bitmiş veya sonuçlar sahte olabilir)`, 'info');
+      return;
+    }
+    
     window._appState.concerts = concerts;
     setLoadingStep(2, 35);
 

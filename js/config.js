@@ -10,11 +10,10 @@ const CONFIG = {
   AMADEUS_CLIENT_SECRET: 'YOUR_AMADEUS_CLIENT_SECRET',
   AMADEUS_BASE: 'https://test.api.amadeus.com',
 
-  TICKETMASTER_BASE: 'https://app.ticketmaster.com/discovery/v2',
-  EXCHANGERATE_BASE: 'https://v6.exchangerate-api.com/v6',
+  TICKETMASTER_BASE: '/api/concerts',
+  EXCHANGERATE_BASE: '/api/rates',
+  AMADEUS_BASE: '/api',
 
-  // Demo modu: API key yoksa mock data kullan
-  DEMO_MODE: true,
 };
 
 // Popüler sanatçı önerileri (autocomplete için)

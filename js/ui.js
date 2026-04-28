@@ -56,7 +56,9 @@ function renderConcerts(concerts, userCurrency, selectedId) {
     return;
   }
   grid.innerHTML = concerts.map(c => {
-    const price = CurrencyService.format(CurrencyService.convert(c.ticketPriceUSD, 'USD', userCurrency), userCurrency);
+    const price = c.ticketPriceUSD > 0 
+      ? CurrencyService.format(CurrencyService.convert(c.ticketPriceUSD, 'USD', userCurrency), userCurrency)
+      : '<span style="font-size:0.8rem">Fiyat Belirtilmemiş</span>';
     const isSelected = c.id === selectedId;
     return `
     <div class="concert-card ${isSelected ? 'selected-card' : ''}" id="cc-${c.id}">
@@ -159,6 +161,11 @@ function renderHotels(hotelData, userCurrency, concert) {
   if(!cont) return;
 
   const hotels = hotelData.all || [];
+
+  if (!hotels.length) {
+    cont.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bed"></i><p>Canlı konaklama fiyatı bulunamadı.</p></div>`;
+    return;
+  }
 
   cont.innerHTML = `
     <div class="hotel-category-section cat-budget" style="width:100%">
