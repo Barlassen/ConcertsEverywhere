@@ -128,8 +128,19 @@ app.get('/api/rates', async (req, res) => {
     const base = req.query.base || 'USD';
     const apiKey = process.env.EXCHANGERATE_API_KEY;
     
+    // Fallback rates if API key is missing
     if (!apiKey || apiKey === 'YOUR_EXCHANGERATE_API_KEY_HERE') {
-      return res.status(503).json({ error: 'ExchangeRate API key is missing' });
+      console.warn('ExchangeRate API key is missing, using fallback rates.');
+      return res.json({
+        result: 'success',
+        base_code: 'USD',
+        conversion_rates: {
+          USD: 1,
+          TRY: 32.5,
+          EUR: 0.92,
+          GBP: 0.79
+        }
+      });
     }
 
     const response = await axios.get(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${base}`);

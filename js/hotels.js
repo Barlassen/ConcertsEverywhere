@@ -16,24 +16,22 @@ const HotelService = (() => {
   }
 
   async function fetchHotels(concert, concertDate, nights = 2) {
-    try {
-      const cityCode = concert.iata;
-      if (!cityCode) return { all: [] };
+    const city = concert.city || '';
+    const venue = concert.venue || '';
+    const searchQuery = city;
 
-      const response = await fetch(`/api/hotels?cityCode=${cityCode}`);
-      const data = await response.json();
-      if (!response.ok || !data.data) {
-        console.warn(data.error || 'Hotel data is unavailable');
-        return { all: [] };
-      }
+    const checkIn = concertDate || new Date();
+    const checkOut = new Date(checkIn);
+    checkOut.setDate(checkOut.getDate() + nights);
 
-      // The current Amadeus hotel-by-city endpoint returns hotel metadata, not live prices.
-      // Without a real priced offer feed, we intentionally return no priced hotel results.
-      return { all: [] };
-    } catch (e) {
-      console.error('Error fetching hotels:', e);
-      return { all: [] };
-    }
+    const url = bookingUrl(searchQuery, checkIn, checkOut);
+
+    return {
+      all: [],
+      externalUrl: url,
+      city: city,
+      venue: venue
+    };
   }
 
   return { fetchHotels, bookingUrl };

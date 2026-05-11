@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config({ quiet: true });
 
 async function test() {
-  const artist = 'Pink Floyd';
+  const artist = 'Metallica';
   
   // Ticketmaster
   const tmRes = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {

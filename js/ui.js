@@ -163,43 +163,21 @@ function renderHotels(hotelData, userCurrency, concert) {
   const hotels = hotelData.all || [];
 
   if (!hotels.length) {
-    cont.innerHTML = `<div class="empty-state"><i class="fa-solid fa-bed"></i><p>Canlı konaklama fiyatı bulunamadı.</p></div>`;
+    cont.innerHTML = `
+      <div class="empty-state" style="background: var(--card-bg); padding: 3rem; border-radius: 1.5rem; border: 1px dashed var(--border);">
+        <i class="fa-solid fa-hotel" style="font-size: 3rem; color: var(--accent); margin-bottom: 1rem;"></i>
+        <h3>Yakın Konaklama Seçenekleri</h3>
+        <p style="color: var(--text2); max-width: 400px; margin: 0.5rem auto 1.5rem;">
+          <b>${hotelData.venue}</b> mekanı ve çevresi için en uygun konaklama seçeneklerini tarihlerinizle birlikte Booking.com'da hazırladık.
+        </p>
+        <a href="${hotelData.externalUrl}" target="_blank" class="select-concert-btn" style="background: #003580; color: #fff; padding: 1rem 2rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg" alt="Booking" style="height: 1.2rem; filter: brightness(0) invert(1);">
+          Seçenekleri Görüntüle
+        </a>
+      </div>`;
     return;
   }
-
-  cont.innerHTML = `
-    <div class="hotel-category-section cat-budget" style="width:100%">
-      <h3><i class="fa-solid fa-bed"></i> En Düşük Fiyatlı Konaklamalar (Hostel/Dorm Dahil)</h3>
-      <div class="hotel-category-grid" style="grid-template-columns:repeat(auto-fill, minmax(320px, 1fr))">
-        ${hotels.map(h => {
-          const nightPrice = CurrencyService.format(CurrencyService.convert(h.pricePerNightUSD, 'USD', userCurrency), userCurrency);
-          const totalPrice = CurrencyService.format(CurrencyService.convert(h.totalUSD, 'USD', userCurrency), userCurrency);
-          return `
-          <div class="hotel-card-v2 budget">
-            <div class="hotel-name-row">
-              <div class="hotel-name-v2">${h.name}</div>
-              <div class="tag tag-green">${h.type}</div>
-            </div>
-            <div style="font-size:.8rem;color:var(--text2);margin-bottom:.5rem">
-              ${h.rating} Puan · <i class="fa-solid fa-location-dot"></i> Mekana ${h.distKm} km
-            </div>
-            <div class="hotel-meta-row">
-              <div>
-                <div class="hotel-price-v2">${totalPrice}</div>
-                <div class="hotel-price-label">${h.nights} gece (${nightPrice}/gece)</div>
-              </div>
-              <div style="text-align:right">
-                <a href="${h.bookingUrl}" target="_blank" class="book-btn book-btn-booking">
-                  Rezerve Et <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.7rem"></i>
-                </a>
-              </div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
 }
-
 // ── FAVORITES ──
 function getFavs() { try { return JSON.parse(localStorage.getItem('concertjet_favs') || '[]'); } catch { return []; } }
 function saveFavs(favs) { localStorage.setItem('concertjet_favs', JSON.stringify(favs)); }

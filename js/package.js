@@ -1,6 +1,7 @@
 // ─── PACKAGE PAGE RENDERER v3 — Çift Link & Gidiş-Dönüş ────────────────────
 const PackageService = {
-  render(concert, bestFlight, bestHotel, allFlights, currency) {
+  render(concert, bestFlight, hotelsData, allFlights, currency) {
+    const bestHotel   = hotelsData?.all?.[0];
     const ticketCost  = CurrencyService.convert(concert.ticketPriceUSD, 'USD', currency);
     const flightCost  = CurrencyService.convert(bestFlight?.priceUSD || 0, 'USD', currency);
     const hotelCost   = CurrencyService.convert(bestHotel?.totalUSD || 0, 'USD', currency);
@@ -9,7 +10,7 @@ const PackageService = {
 
     const validFlights = allFlights.filter(f => f.arrivesInTime);
 
-    // Çift Bilet Butonları
+    // ... (rest of the variables) ...
     const ticketButtons = `
       <a href="${concert.officialUrl}" target="_blank" class="book-btn book-btn-ticket" style="margin-bottom:.5rem;width:100%;justify-content:center">
         <i class="fa-solid fa-check-circle"></i> Resmi Satıcıdan Al (${concert.officialProvider})
@@ -22,7 +23,6 @@ const PackageService = {
 
     document.getElementById('package-content').innerHTML = `
     <div class="package-page">
-
       <div class="package-hero">
         <div class="package-hero-top">
           <div>
@@ -44,7 +44,6 @@ const PackageService = {
       </div>
 
       <div class="package-grid">
-
         <!-- TICKET CARD -->
         <div class="pkg-card">
           <div class="pkg-card-header">
@@ -54,9 +53,7 @@ const PackageService = {
           <div class="pkg-detail-row"><span class="pkg-detail-label">Sanatçı</span><span class="pkg-detail-value">${concert.artist}</span></div>
           <div class="pkg-detail-row"><span class="pkg-detail-label">Tarih</span><span class="pkg-detail-value">${concert.dateStr} ${concert.timeStr}</span></div>
           <div class="pkg-price-big">${concert.ticketPriceUSD > 0 ? CurrencyService.format(ticketCost, currency) : '<span style="font-size:1.2rem;color:var(--text2)">Belirtilmemiş</span>'}</div>
-          <div style="margin-top:1rem;">
-            ${ticketButtons}
-          </div>
+          <div style="margin-top:1rem;">${ticketButtons}</div>
         </div>
 
         <!-- FLIGHT CARD -->
@@ -74,7 +71,6 @@ const PackageService = {
             <div style="font-size:.75rem;color:var(--text2);margin-bottom:.3rem">DÖNÜŞ (${bestFlight.return.dateStr})</div>
             <div class="pkg-detail-row"><span class="pkg-detail-label">${bestFlight.destCode} → ${bestFlight.originCode}</span><span class="pkg-detail-value">${bestFlight.return.depTime} - ${bestFlight.return.arrTime}</span></div>
           </div>
-          
           <div class="pkg-price-big" style="margin-top:.8rem">${CurrencyService.format(flightCost, currency)}</div>
           <a href="${bestFlight.bookingUrl}" target="_blank" class="book-btn book-btn-skyscanner" style="margin-top:.8rem;width:100%;justify-content:center">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> Skyscanner'da Satın Al
@@ -86,19 +82,20 @@ const PackageService = {
         <div class="pkg-card">
           <div class="pkg-card-header">
             <span style="width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:.9rem;background:rgba(255,215,64,.2)">🛏️</span>
-            En Ucuz Konaklama
+            Konaklama Seçenekleri
           </div>
           ${bestHotel ? `
           <div class="pkg-detail-row"><span class="pkg-detail-label">Tesis</span><span class="pkg-detail-value">${bestHotel.name}</span></div>
-          <div class="pkg-detail-row"><span class="pkg-detail-label">Tür</span><span class="pkg-detail-value">${bestHotel.type}</span></div>
-          <div class="pkg-detail-row"><span class="pkg-detail-label">Mekana Uzaklık</span><span class="pkg-detail-value">${bestHotel.distKm} km</span></div>
-          <div class="pkg-detail-row"><span class="pkg-detail-label">Süre</span><span class="pkg-detail-value">${bestHotel.nights} Gece</span></div>
-          <div class="pkg-detail-row"><span class="pkg-detail-label">Gecelik</span><span class="pkg-detail-value">${CurrencyService.format(CurrencyService.convert(bestHotel.pricePerNightUSD,'USD',currency),currency)}</span></div>
           <div class="pkg-price-big">${CurrencyService.format(hotelCost, currency)}</div>
           <a href="${bestHotel.bookingUrl}" target="_blank" class="book-btn book-btn-booking" style="margin-top:.8rem;width:100%;justify-content:center">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Booking.com'dan Al
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Rezervasyon Yap
           </a>
-          ` : '<p style="color:var(--text2);font-size:.85rem">Konaklama bulunamadı.</p>'}
+          ` : `
+          <p style="color:var(--text2);font-size:.85rem;margin-bottom:1rem">Canlı otel fiyatları şu an çekilemiyor ancak size en uygun seçenekleri Booking.com'da hazırladık.</p>
+          <a href="${hotelsData.externalUrl}" target="_blank" class="book-btn book-btn-booking" style="width:100%;justify-content:center;background:#003580">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Booking.com'da Gör
+          </a>
+          `}
         </div>
       </div>
     </div>`;

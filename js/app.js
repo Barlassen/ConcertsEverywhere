@@ -154,7 +154,7 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     const bh = hotelsData.all[0]; 
     
     if (firstConcert) {
-      PackageService.render(firstConcert, bf, bh, flights, currency);
+      PackageService.render(firstConcert, bf, hotelsData, flights, currency);
       PackageService.renderComparisonTable(concerts, flights, hotelsData, currency);
       switchTab('package'); // Auto-switch to package tab!
     }
@@ -163,7 +163,7 @@ document.getElementById('search-btn').addEventListener('click', async () => {
     showToast(`${concerts.length} konser ve doğrudan satış linkleri bulundu! 🚀`, 'success');
   } catch (err) {
     showLoading(false);
-    showToast('Bir hata oluştu.', 'error');
+    showToast(`Hata: ${err.message || 'Bilinmeyen bir sorun oluştu.'}`, 'error');
     console.error(err);
   }
 });
@@ -196,7 +196,7 @@ window.selectConcert = async function(id) {
     const bf = flights.filter(f => f.arrivesInTime).sort((a,b)=>a.priceUSD-b.priceUSD)[0];
     const bh = hotelsData.all[0];
     
-    PackageService.render(concert, bf, bh, flights, currency);
+    PackageService.render(concert, bf, hotelsData, flights, currency);
     PackageService.renderComparisonTable(window._appState.concerts, flights, hotelsData, currency);
 
     renderConcerts(window._appState.concerts, currency, id);
