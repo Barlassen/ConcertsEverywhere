@@ -13,7 +13,24 @@ function switchTab(tab) {
 
 function showLoading(show) {
   const el = document.getElementById('loading-overlay');
-  if(el) el.style.display = show ? 'grid' : 'none';
+  if(el) {
+    el.style.display = show ? 'flex' : 'none';
+    if(show) {
+      // Add custom loading text container if it doesn't exist
+      let textContainer = document.getElementById('loading-ai-text');
+      if(!textContainer) {
+        textContainer = document.createElement('div');
+        textContainer.id = 'loading-ai-text';
+        textContainer.style.color = '#fff';
+        textContainer.style.marginTop = '2rem';
+        textContainer.style.fontSize = '1.2rem';
+        textContainer.style.textAlign = 'center';
+        textContainer.style.fontWeight = 'bold';
+        el.appendChild(textContainer);
+      }
+      textContainer.innerText = 'Yapay Zeka (Ollama) ile internet taranıyor... Seçtiğiniz kriterler doğrultusunda size en uygun konser seyahat planı yükleniyor.';
+    }
+  }
 }
 
 function setLoadingStep(step, percent) {
@@ -77,12 +94,18 @@ function renderConcerts(concerts, userCurrency, selectedId) {
           <span class="concert-date"><i class="fa-regular fa-calendar"></i> ${c.dateStr} ${c.timeStr}</span>
           <span class="concert-price">${price}</span>
         </div>
-        <a href="${c.officialUrl}" target="_blank" class="concert-ticket-link">
+        ${c.officialUrl ? `
+        <a href="${c.officialUrl}" target="_blank" class="concert-ticket-link" style="background: #10b981; color: white;">
           <i class="fa-solid fa-ticket"></i> Resmi Sağlayıcı (${c.officialProvider})
-        </a>
+        </a>` : ''}
+        ${c.resaleUrl ? `
+        <div style="font-size: 0.75rem; color: #f59e0b; margin-top: 0.5rem; display: flex; align-items: flex-start; gap: 0.3rem;">
+          <i class="fa-solid fa-triangle-exclamation" style="margin-top: 0.1rem;"></i>
+          <span>Bu biletler kullanıcılar tarafından satılmaktadır (İkinci El). Seçilen platformlar (${c.resaleProvider}) güvenli aracılardır.</span>
+        </div>
         <a href="${c.resaleUrl}" target="_blank" class="concert-ticket-link" style="background:transparent;border-color:var(--text2);color:var(--text2);margin-top:.4rem">
-          <i class="fa-solid fa-rotate"></i> İkinci El Seçenekleri
-        </a>
+          <i class="fa-solid fa-rotate"></i> ${c.resaleProvider} Üzerinden Al
+        </a>` : ''}
         <button class="select-concert-btn" onclick="selectConcert('${c.id}')" style="margin-top:.8rem;background:var(--accent);color:#fff">
           <i class="fa-solid fa-plane"></i> Gidiş-Dönüş Paketi Oluştur
         </button>

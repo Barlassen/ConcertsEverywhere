@@ -15,8 +15,13 @@
   "description": "",
   "dependencies": {
     "axios": "^1.15.2",
+    "cheerio": "^1.1.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "google-it": "^1.6.4",
+    "puppeteer": "^24.43.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
 }

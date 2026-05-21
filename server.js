@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
-
+const { scrapeConcertsHybrid } = require('./scrapers/index');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -200,6 +200,26 @@ app.get('/api/seatgeek', async (req, res) => {
   } catch (error) {
     console.error('SeatGeek Error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to fetch from SeatGeek' });
+  }
+});
+
+
+// 2.7 Scraped Concerts (Hybrid: Biletix, StubHub vs)
+app.get('/api/scrape-concerts', async (req, res) => {
+  try {
+    const { keyword } = req.query;
+    if (!keyword) {
+      return res.status(400).json({ error: 'Keyword is required for scraping' });
+    }
+    
+    console.log(`[Scraper] Starting scrape for: ${keyword}`);
+    const scrapedEvents = await scrapeConcertsHybrid(keyword);
+    console.log(`[Scraper] Found ${scrapedEvents.length} events for ${keyword}`);
+    
+    res.json({ events: scrapedEvents });
+  } catch (error) {
+    console.error('Scraping Error:', error.message);
+    res.status(500).json({ error: 'Failed to scrape concerts' });
   }
 });
 

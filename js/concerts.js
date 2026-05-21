@@ -17,7 +17,7 @@ const ConcertService = (() => {
 
   // Resale/Secondary Platforms
   const RESALE_PLATFORMS = [
-    { name: 'StubHub', url: 'https://www.stubhub.com/search/doSearch?searchStr=' },
+    { name: 'StubHub', url: 'https://www.stubhub.com/secure/search?q=' },
     { name: 'Viagogo', url: 'https://www.viagogo.com/Search?q=' },
     { name: 'TicketSwap', url: 'https://www.ticketswap.com/search?query=' }
   ];
@@ -168,10 +168,11 @@ const ConcertService = (() => {
     try {
       const encodedArtist = encodeURIComponent(artistName);
       
-      // Paralel API istekleri (Hata toleranslı)
-      const [tmRes, sgRes] = await Promise.allSettled([
+      // Paralel API istekleri (Hata toleranslı) ve Scraping (Hibrit Model)
+      const [tmRes, sgRes, scrapeRes] = await Promise.allSettled([
         fetch(`/api/concerts?keyword=${encodedArtist}`),
-        fetch(`/api/seatgeek?keyword=${encodedArtist}`)
+        fetch(`/api/seatgeek?keyword=${encodedArtist}`),
+        fetch(`/api/scrape-concerts?keyword=${encodedArtist}`)
       ]);
 
       let allEvents = [];
@@ -335,6 +336,50 @@ const ConcertService = (() => {
             };
           });
           allEvents = [...allEvents, ...mappedSG];
+        }
+      }
+
+      // 3. Scraping (Biletix, StubHub vs) Verilerini İşle
+      if (scrapeRes.status === 'fulfilled') {
+        const scrapeData = await scrapeRes.value.json();
+        if (scrapeRes.value.ok && scrapeData.events) {
+          // Backend zaten NLP filtrelemesini yaptı, doğrudan formatlayıp ekleyebiliriz
+          const mappedScraped = scrapeData.events.map(event => {
+            // Tarih ve saat formatlaması
+            const dateObj = new Date(event.date);
+            const dateStr = dateObj.toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', weekday:'short' });
+            const timeStr = `${dateObj.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' })} (Yerel)`;
+
+            return {
+              id: event.id,
+              eventId: event.eventId,
+              artist: event.artist,
+              city: event.city,
+              country: event.country,
+              venue: event.venue,
+              lat: event.lat || 0,
+              lng: event.lng || 0,
+              iata: inferIata(event.city, event.lat, event.lng),
+              date: dateObj,
+              concertHour: event.concertHour || 20,
+              dateStr: dateStr,
+              timeStr: timeStr,
+              ticketPriceUSD: event.ticketPriceUSD || 0,
+              emoji: pickVenueEmoji(event.id),
+              domestic: event.country.toLowerCase().includes('turkey') || event.country.toLowerCase() === 'tr',
+              
+              officialProvider: event.officialProvider, // Biletix gibi resmi ise dolu gelir
+              officialUrl: event.officialUrl,
+              requiresVPN: event.requiresVPN || false,
+              
+              resaleProvider: event.resaleProvider, // StubHub gibi ikinci else dolu gelir
+              resaleUrl: event.resaleUrl,
+              
+              updatedAt: now,
+              updatedStr: now.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' })
+            };
+          });
+          allEvents = [...allEvents, ...mappedScraped];
         }
       }
 
